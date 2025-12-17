@@ -22,9 +22,16 @@ def main():
             print("Ошибка: в файлах нет данных")
             sys.exit(1)
 
+        # Валидируем имя отчёта
+        report_name = Validator.validate_report_name(args.report)
+
         # Создаём отчёт
-        report = ReportFactory.create_report(args.report)
+        report = ReportFactory.create_report(report_name)
         report_data = report.generate(data)
+
+        if not report_data:
+            print("Отчёт не содержит данных")
+            sys.exit(0)
 
         # Форматируем и выводим результат
         formatted_report = ReportFormatter.format_table(report_data)
@@ -34,6 +41,8 @@ def main():
     except ValueError as e:
         print(f"Ошибка: {e}")
         sys.exit(1)
+    except SystemExit as e:
+        raise e
     except Exception as e:
         print(f"Непредвиденная ошибка: {e}")
         sys.exit(1)
