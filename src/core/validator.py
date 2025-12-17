@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import List
+from src.reports import ReportFactory
 
 
 class Validator:
@@ -21,10 +22,11 @@ class Validator:
         """
         existing_files = []
         for file_path in file_paths:
-            if Path(file_path).exists():
-                existing_files.append(file_path)
+            path = Path(file_path)
+            if path.exists() and path.is_file():
+                existing_files.append(str(path))
             else:
-                print(f"Предупреждение: файл '{file_path}' не найден, пропускаем")
+                print(f"Предупреждение: файл '{file_path}' не найден или не является файлом, пропускаем")
 
         if not existing_files:
             raise ValueError("Не найдено ни одного существующего файла")
@@ -32,13 +34,12 @@ class Validator:
         return existing_files
 
     @staticmethod
-    def validate_report_name(report_name: str, available_reports: List[str]) -> str:
+    def validate_report_name(report_name: str) -> str:
         """
         Проверяет корректность имени отчёта.
 
         Args:
             report_name: Имя отчёта для проверки
-            available_reports: Список доступных отчётов
 
         Returns:
             Валидное имя отчёта
@@ -46,6 +47,7 @@ class Validator:
         Raises:
             ValueError: Если отчёт не поддерживается
         """
+        available_reports = ReportFactory.get_available_reports()
         if report_name.lower() not in available_reports:
             raise ValueError(
                 f"Отчёт '{report_name}' не поддерживается. "
