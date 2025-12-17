@@ -1,6 +1,6 @@
 from collections import defaultdict
-from statistics import mean
 from typing import List, Dict, Any
+from statistics import mean
 
 
 class DataAnalyzer:
@@ -41,18 +41,84 @@ class DataAnalyzer:
         for position, records in grouped_data.items():
             performances = []
             for record in records:
-                try:
-                    perf = float(record.get('performance', 0))
-                    performances.append(perf)
-                except (ValueError, TypeError):
-                    continue
+                performance_value = record.get('performance', '').strip()
+                if performance_value:  # Проверяем, что значение не пустое
+                    try:
+                        perf = float(performance_value)
+                        performances.append(perf)
+                    except (ValueError, TypeError):
+                        # Пропускаем некорректные значения
+                        continue
 
-            if performances:
+            if performances:  # Проверяем, что есть хотя бы одно валидное значение
                 avg_perf = mean(performances)
                 results.append({
                     'position': position,
                     'avg_performance': round(avg_perf, 2),
-                    'employee_count': len(performances),
+                    'employee_count': len(performances)
                 })
 
         return results
+
+    @staticmethod
+    def filter_by_skill(data: List[Dict], skill: str) -> List[Dict]:
+        """
+        Фильтрует разработчиков по наличию навыка.
+
+        Args:
+            data: Список словарей с данными разработчиков
+            skill: Навык для поиска
+
+        Returns:
+            Отфильтрованный список разработчиков
+        """
+        filtered = []
+        skill_lower = skill.lower().strip()
+
+        for record in data:
+            skills_str = record.get('skills', '')
+            if skill_lower in skills_str.lower():
+                filtered.append(record)
+
+        return filtered
+
+    @staticmethod
+    def get_statistics(data: List[Dict]) -> Dict[str, Any]:
+        """
+        Возвращает общую статистику по данным.
+
+        Args:
+            data: Список словарей с данными разработчиков
+
+        Returns:
+            Словарь со статистикой
+        """
+        if not data:
+            return {}
+
+        total_employees = len(data)
+
+        # Собираем все валидные значения performance
+        performances = []
+        for record in data:
+            performance_value = record.get('performance', '').strip()
+            if performance_value:
+                try:
+                    perf = float(performance_value)
+                    performances.append(perf)
+                except (ValueError, TypeError):
+                    continue
+
+        stats = {
+            'total_employees': total_employees,
+            'total_performance_records': len(performances),
+        }
+
+        if performances:
+            stats.update({
+                'avg_performance': round(mean(performances), 2),
+                'min_performance': min(performances),
+                'max_performance': max(performances)
+            })
+
+        return stats
