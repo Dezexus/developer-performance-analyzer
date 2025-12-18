@@ -21,19 +21,9 @@ class PerformanceReport(BaseReport):
             отсортированный по убыванию эффективности
         """
         results = DataAnalyzer.calculate_average_performance(data)
-
         results.sort(key=lambda x: x['avg_performance'], reverse=True)
 
-        # Убираем employee_count из финального результата,
-        # так как в ТЗ требуется только position и avg_performance
-        final_results = []
-        for item in results:
-            final_results.append({
-                'position': item['position'],
-                'avg_performance': item['avg_performance'],
-            })
-
-        return final_results
+        return results
 
     def get_name(self) -> str:
         """Возвращает имя отчёта."""
