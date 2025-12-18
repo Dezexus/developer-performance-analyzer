@@ -54,8 +54,7 @@ class DataAnalyzer:
                 avg_perf = mean(performances)
                 results.append({
                     'position': position,
-                    'avg_performance': round(avg_perf, 2),
-                    'employee_count': len(performances)
+                    'avg_performance': round(avg_perf, 2)
                 })
 
         return results
