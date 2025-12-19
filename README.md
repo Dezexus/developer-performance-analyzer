@@ -20,7 +20,6 @@
 - **Python 3.8+**
 - **Зависимости:** `tabulate`
 - **Тестирование:** `pytest`, `pytest-cov`
-- **Линтинг:** `black`, `flake8`, `isort`
 
 ## 📦 Установка
 
@@ -62,18 +61,6 @@ python script.py --help
 
 ```bash
 python -m pytest tests/ -v
-```
-
-### Запуск тестов с покрытием
-
-```bash
-python -m pytest tests/ --cov=src --cov-report=term-missing
-```
-
-### Запуск тестов с HTML отчётом о покрытии
-
-```bash
-python -m pytest tests/ --cov=src --cov-report=html
 ```
 
 ## 📊 Добавление нового отчёта
