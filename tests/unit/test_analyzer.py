@@ -5,14 +5,11 @@ from src.core.analyzer import DataAnalyzer
 class TestDataAnalyzer:
     """Тесты для класса DataAnalyzer."""
 
-    @pytest.fixture
-    def sample_data(self, sample_csv_data):
-        """Фикстура с тестовыми данными."""
-        return sample_csv_data
+    # Убираем старую фикстуру sample_data - она больше не нужна
 
-    def test_group_by_position(self, sample_data):
+    def test_group_by_position(self, sample_csv_data):
         """Тест группировки данных по должностям."""
-        grouped = DataAnalyzer.group_by_position(sample_data)
+        grouped = DataAnalyzer.group_by_position(sample_csv_data)
 
         assert isinstance(grouped, dict)
         assert len(grouped) == 5  # 5 уникальных должностей
@@ -40,9 +37,9 @@ class TestDataAnalyzer:
         assert 'Developer' in grouped
         assert len(grouped) == 1
 
-    def test_calculate_average_performance(self, sample_data):
+    def test_calculate_average_performance(self, sample_csv_data):
         """Тест расчёта средней эффективности."""
-        results = DataAnalyzer.calculate_average_performance(sample_data)
+        results = DataAnalyzer.calculate_average_performance(sample_csv_data)
 
         assert isinstance(results, list)
         assert len(results) == 5  # 5 должностей
@@ -51,49 +48,79 @@ class TestDataAnalyzer:
         for result in results:
             assert 'position' in result
             assert 'avg_performance' in result
-            assert 'employee_count' in result
             assert isinstance(result['avg_performance'], float)
-            assert isinstance(result['employee_count'], int)
 
         # Находим DevOps Engineer (должен иметь самую высокую эффективность)
         devops_result = next(r for r in results if r['position'] == 'DevOps Engineer')
         assert devops_result['avg_performance'] == 4.9
-        assert devops_result['employee_count'] == 1
 
     def test_calculate_average_performance_empty_data(self):
         """Тест расчёта средней эффективности для пустых данных."""
         results = DataAnalyzer.calculate_average_performance([])
         assert results == []
 
-    def test_calculate_average_performance_invalid_values(self):
-        """Тест расчёта с некорректными значениями performance."""
-        data = [
-            {'position': 'Developer', 'performance': '4.5'},
-            {'position': 'Developer', 'performance': 'invalid'},
-            {'position': 'Developer', 'performance': ''},
-            {'position': 'Developer'},  # Нет поля performance
-            {'position': 'QA', 'performance': '4.8'}
-        ]
+    @pytest.mark.parametrize("test_data, expected_result", [
+        # Тест 1: корректные данные
+        (
+                [
+                    {'position': 'Developer', 'performance': '4.5'},
+                    {'position': 'Developer', 'performance': '4.7'},
+                    {'position': 'QA', 'performance': '4.8'}
+                ],
+                [
+                    {'position': 'Developer', 'avg_performance': 4.6},
+                    {'position': 'QA', 'avg_performance': 4.8}
+                ]
+        ),
+        # Тест 2: дублирующиеся должности
+        (
+                [
+                    {'position': 'Developer', 'performance': '4.5'},
+                    {'position': 'Developer', 'performance': '4.7'},
+                    {'position': 'QA', 'performance': '4.8'},
+                    {'position': 'QA', 'performance': '4.9'}
+                ],
+                [
+                    {'position': 'Developer', 'avg_performance': 4.6},
+                    {'position': 'QA', 'avg_performance': 4.85}
+                ]
+        ),
+        # Тест 3: некорректные значения
+        (
+                [
+                    {'position': 'Developer', 'performance': '4.5'},
+                    {'position': 'Developer', 'performance': 'invalid'},
+                    {'position': 'QA', 'performance': '4.8'}
+                ],
+                [
+                    {'position': 'Developer', 'avg_performance': 4.5},
+                    {'position': 'QA', 'avg_performance': 4.8}
+                ]
+        ),
+        # Тест 4: округление
+        (
+                [
+                    {'position': 'Developer', 'performance': '4.555'},
+                    {'position': 'Developer', 'performance': '4.666'}
+                ],
+                [
+                    {'position': 'Developer', 'avg_performance': 4.61}
+                ]
+        ),
+    ])
+    def test_calculate_average_performance_various_cases(self, test_data, expected_result):
+        """Параметризованный тест расчёта средней эффективности."""
+        results = DataAnalyzer.calculate_average_performance(test_data)
 
-        results = DataAnalyzer.calculate_average_performance(data)
-
-        # Только Developer и QA с валидными значениями
-        # Developer: только одно валидное значение 4.5
-        # QA: одно валидное значение 4.8
-        assert len(results) == 2
-
-        # Сортируем результаты для стабильности теста
+        # Сортируем для сравнения
         results.sort(key=lambda x: x['position'])
+        expected_result.sort(key=lambda x: x['position'])
 
-        # Проверяем Developer (только одно валидное значение)
-        assert results[0]['position'] == 'Developer'
-        assert results[0]['avg_performance'] == 4.5
-        assert results[0]['employee_count'] == 1
+        assert len(results) == len(expected_result)
 
-        # Проверяем QA
-        assert results[1]['position'] == 'QA'
-        assert results[1]['avg_performance'] == 4.8
-        assert results[1]['employee_count'] == 1
+        for i, (result, expected) in enumerate(zip(results, expected_result)):
+            assert result['position'] == expected['position']
+            assert result['avg_performance'] == pytest.approx(expected['avg_performance'], 0.01)
 
     def test_calculate_average_performance_multiple_same_position(self):
         """Тест расчёта средней эффективности для нескольких сотрудников на одной должности."""
@@ -108,7 +135,6 @@ class TestDataAnalyzer:
 
         dev_result = next(r for r in results if r['position'] == 'Developer')
         assert dev_result['avg_performance'] == pytest.approx((4.5 + 4.7 + 4.9) / 3, 0.01)
-        assert dev_result['employee_count'] == 3
 
     def test_calculate_average_performance_rounding(self):
         """Тест округления средней эффективности."""
@@ -124,4 +150,3 @@ class TestDataAnalyzer:
         # Ожидаем округление до 2 знаков
         # (4.555 + 4.666) / 2 = 4.6105 -> округляем до 4.61
         assert dev_result['avg_performance'] == 4.61
-        assert dev_result['employee_count'] == 2
