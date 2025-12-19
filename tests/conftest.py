@@ -67,7 +67,6 @@ def sample_csv_file(sample_csv_data):
 
     yield file_path
 
-    # Удаляем файл после теста
     Path(file_path).unlink(missing_ok=True)
 
 
