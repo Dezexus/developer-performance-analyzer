@@ -1,31 +1,19 @@
-from typing import List, Dict
+from typing import Any, Dict, List, Optional
+
 from tabulate import tabulate
 
 
 class ReportFormatter:
-    """Класс для форматирования отчётов в таблицу."""
+    """Форматирование отчётов в табличный вид."""
 
     @staticmethod
-    def format_table(report_data: List[Dict], headers=None) -> str:
-        """
-        Форматирует данные отчёта в таблицу.
-
-        Args:
-            report_data: Данные отчёта (список словарей)
-            headers: Заголовки столбцов (ключи словаря, если не указаны)
-
-        Returns:
-            Отформатированная таблица в виде строки
-        """
+    def format_table(report_data: List[Dict[str, Any]], headers: Optional[List[str]] = None) -> str:
+        """Преобразует список словарей в форматированную таблицу."""
         if not report_data:
             return "Нет данных для отображения"
 
-        # Преобразуем список словарей в список списков
-        table_data = []
-        for row in report_data:
-            table_data.append(list(row.values()))
+        table_data = [list(row.values()) for row in report_data]
 
-        # Используем ключи первого словаря как заголовки, если не указаны другие
         if headers is None:
             headers = list(report_data[0].keys())
 
