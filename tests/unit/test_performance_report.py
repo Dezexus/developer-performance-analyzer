@@ -1,47 +1,48 @@
 import pytest
+
 from src.reports.performance_report import PerformanceReport
 
 
 class TestPerformanceReport:
-    """Тесты для класса PerformanceReport."""
+    """Тесты генерации отчёта по эффективности."""
 
-    @pytest.mark.parametrize("test_data, expected_results", [
-        # Базовый тест
-        (
+    @pytest.mark.parametrize(
+        "test_data, expected",
+        [
+            (
                 [
-                    {'position': 'Developer', 'performance': '4.5'},
-                    {'position': 'QA', 'performance': '4.8'},
-                    {'position': 'Developer', 'performance': '4.7'},
-                    {'position': 'QA', 'performance': '4.9'}
+                    {"position": "Developer", "performance": "4.5"},
+                    {"position": "QA", "performance": "4.8"},
+                    {"position": "Developer", "performance": "4.7"},
+                    {"position": "QA", "performance": "4.9"},
                 ],
                 [
-                    {'position': 'QA', 'avg_performance': 4.85},
-                    {'position': 'Developer', 'avg_performance': 4.6}
-                ]
-        ),
-        # Сортировка по убыванию
-        (
+                    {"position": "QA", "avg_performance": 4.85},
+                    {"position": "Developer", "avg_performance": 4.6},
+                ],
+            ),
+            (
                 [
-                    {'position': 'A', 'performance': '4.5'},
-                    {'position': 'B', 'performance': '4.9'},
-                    {'position': 'C', 'performance': '4.7'}
+                    {"position": "A", "performance": "4.5"},
+                    {"position": "B", "performance": "4.9"},
+                    {"position": "C", "performance": "4.7"},
                 ],
                 [
-                    {'position': 'B', 'avg_performance': 4.9},
-                    {'position': 'C', 'avg_performance': 4.7},
-                    {'position': 'A', 'avg_performance': 4.5}
-                ]
-        ),
-        # Пустые данные
-        ([], []),
-    ])
-    def test_generate_report_various_cases(self, test_data, expected_results):
-        """Параметризованный тест генерации отчётов."""
+                    {"position": "B", "avg_performance": 4.9},
+                    {"position": "C", "avg_performance": 4.7},
+                    {"position": "A", "avg_performance": 4.5},
+                ],
+            ),
+            ([], []),
+        ],
+    )
+    def test_generate_report(self, test_data, expected):
+        """Проверка корректности расчётов и сортировки в отчёте."""
         report = PerformanceReport()
         results = report.generate(test_data)
 
-        assert len(results) == len(expected_results)
+        assert len(results) == len(expected)
 
-        for i, (result, expected) in enumerate(zip(results, expected_results)):
-            assert result['position'] == expected['position']
-            assert result['avg_performance'] == pytest.approx(expected['avg_performance'], 0.01)
+        for res, exp in zip(results, expected):
+            assert res["position"] == exp["position"]
+            assert res["avg_performance"] == pytest.approx(exp["avg_performance"], 0.01)
