@@ -1,24 +1,18 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List
+
+from src.core.types import DeveloperRecord, ReportResult
 
 
 class BaseReport(ABC):
-    """Абстрактный базовый класс для всех отчётов."""
+    """Базовый класс для генерации отчётов."""
 
     @abstractmethod
-    def generate(self, data: List[Dict]) -> List[Dict]:
-        """
-        Генерирует отчёт на основе данных.
-
-        Args:
-            data: Список словарей с исходными данными
-
-        Returns:
-            Список словарей с результатами отчёта
-        """
+    def generate(self, data: List[DeveloperRecord]) -> List[ReportResult]:
+        """Генерация данных отчёта."""
         pass
 
     @abstractmethod
     def get_name(self) -> str:
-        """Возвращает имя отчёта."""
+        """Получение идентификатора отчёта."""
         pass

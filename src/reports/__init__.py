@@ -1,3 +1,6 @@
+from typing import Type
+
+from .base_report import BaseReport
 from .performance_report import PerformanceReport
 
 
@@ -5,12 +8,12 @@ class ReportFactory:
     """Фабрика для создания отчётов."""
 
     _reports = {
-        'performance': PerformanceReport,
+        "performance": PerformanceReport,
         # Другие отчёты можно будет добавить здесь в будущем
     }
 
     @classmethod
-    def create_report(cls, report_name: str):
+    def create_report(cls, report_name: str) -> BaseReport:
         """
         Создаёт экземпляр отчёта по имени.
 
@@ -26,13 +29,12 @@ class ReportFactory:
         report_class = cls._reports.get(report_name.lower())
         if not report_class:
             raise ValueError(
-                f"Отчёт '{report_name}' не найден. "
-                f"Доступные отчёты: {list(cls._reports.keys())}"
+                f"Отчёт '{report_name}' не найден. Доступные отчёты: {list(cls._reports.keys())}"
             )
         return report_class()
 
     @classmethod
-    def register_report(cls, report_name: str, report_class):
+    def register_report(cls, report_name: str, report_class: Type[BaseReport]) -> None:
         """
         Регистрирует новый тип отчёта.
 
