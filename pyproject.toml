@@ -1,0 +1,99 @@
+[project]
+name = "developer-performance-analyzer"
+version = "1.0.0"
+description = "Анализатор эффективности разработчиков"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "tabulate>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.14.0",
+    "pre-commit>=3.4.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# --- Ruff configuration ----------------------------------------------------
+[tool.ruff]
+# базовая длина строки и исключения
+line-length = 100
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".ruff_cache",
+    "dist",
+    "build",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+# включаем набор проверок (E/W/F/I/B/C4/UP/SIM/TID/ANN)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (imports)
+    "B",   # bugbear
+    "C4",  # comprehensions
+    "UP",  # pyupgrade
+    "SIM", # simplify
+    "TID", # tidy-imports
+    "ANN", # annotations (type-hints)
+]
+
+# Игнорировать конкретные правила глобально (пусто — управляем через per-file-ignores)
+ignore = []
+
+# Настройки isort (использовать секцию lint.isort — рекомендовано)
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+lines-after-imports = 2
+
+# Пер-файл игнорирования: выключаем требование аннотаций для тестов и conftest
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ANN"]
+"**/conftest.py" = ["ANN"]
+
+# (Опционально) расширенные per-file игнорирования
+[tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["F401"]
+
+# форматирование (поддерживаемые опции)
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 72
+
+# --- Pytest: настройки тестового раннера -----------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "-v",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html:coverage_html",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=80",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: integration tests",
+    "unit: unit tests",
+]

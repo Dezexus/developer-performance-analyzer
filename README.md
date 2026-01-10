@@ -76,13 +76,13 @@ from .base_report import BaseReport
 class NewReport(BaseReport):
     def __init__(self):
         self.name = "new_report"
-    
+
     def generate(self, data):
         # Ваша логика генерации отчёта
         results = []
         # ... обработка данных ...
         return results
-    
+
     def get_name(self):
         return self.name
 ```
